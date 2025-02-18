@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Калькулятор податків ФОП 3 групи</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    /* Base styling using CSS custom properties for colors */
+    :root {
+      --bg: #ffffff;
+      --text: #1c1c1c;
+      --border-main: #a0a0a0;
+      --border-text-field: #909090;
+      --accent: #00b06a;
+      --accent-lighter: #1ab879;
+      --accent-darker: #009e5f;
+      --complementary: #ce00ac;
+      --complementary-70: #3e0034;
+      --radio: #d4d4d4;
+      --link: var(--accent);
+      --link-hover: var(--accent-darker);
+    }
+
+    /* When the user selects light mode */
+    html[data-theme="light"] {
+      --bg: #ffffff;
+      --text: #1c1c1c;
+      --border-main: #a0a0a0;
+      --border-text-field: #909090;
+      --radio: #d4d4d4;
+      --link: var(--accent);
+      --link-hover: var(--accent-darker);
+    }
+
+    /* Use system dark mode if no override */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --text: #e0e0e0;
+        --border-main: #353535;
+        --border-text-field: #555555;
+        --radio: #252525;
+        --link: var(--accent);
+        --link-hover: var(--accent-lighter);
+      }
+    }
+
+    /* When the user selects dark mode */
+    html[data-theme="dark"] {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --border-main: #353535;
+      --border-text-field: #555555;
+      --radio: #252525;
+      --link: var(--accent);
+      --link-hover: var(--accent-lighter);
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Exo 2", serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+      margin: 20px;
+      transition: background-color 0.3s, color 0.3s;
+      font-size: 1.25rem;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+    }
+
+    ::selection {
+      background-color: var(--accent);
+    }
+
+    input:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 2rem 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .calculator {
+      max-width: 35rem;
+      margin: 0 auto;
+      padding: 2rem;
+      border: 1px solid var(--border-main);
+      border-radius: 1rem;
+    }
+
+    .calculator label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .calculator input[type="radio"] {
+      appearance: none;
+      background: var(--radio);
+      border: 0.125rem solid var(--radio);
+      border-radius: 100%;
+      width: 1em;
+      height: 1em;
+    }
+
+    .calculator input[type="radio"]:checked {
+      background: var(--accent);
+    }
+
+    .input-fields {
+      margin-top: 1rem;
+    }
+
+    .calculator input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      box-sizing: border-box;
+      font-size: 1.5rem;
+      background-color: rgba(0, 0, 0, 0);
+      color: var(--text);
+      border: 1px solid var(--border-text-field);
+      border-radius: 0.5rem;
+    }
+
+    .calculator #foreign-input {
+      margin-top: 1rem;
+    }
+
+    .results > p {
+      padding-top: 1.5rem;
+    }
+
+    .theme-switcher {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .theme-switcher a {
+      text-decoration: none;
+      color: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #theme-toggle {
+      background-color: rgba(0, 0, 0, 0);
+      font-size: 1.25rem;
+      color: var(--text);
+      border: 0;
+      cursor: pointer;
+    }
+
+    .disclaimer {
+      max-width: 32rem;
+      margin: 2rem auto;
+      border-top: 1px solid var(--border-main);
+    }
+
+    .disclaimer h2 {
+      margin-top: 2rem;
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--complementary);
+    }
+
+    .disclaimer h2::selection {
+      background-color: var(--complementary-70);
+    }
+
+    .disclaimer p {
+      font-size: 1rem;
+    }
+
+    .links {
+      max-width: 32rem;
+      margin: 2.5rem auto;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-main);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Калькулятор податків ФОП 3 групи</h1>
+  <div class="calculator">
+    <div class="currency-selection">
+      <label>
+        <input type="radio" name="currency" value="local_currency" checked>
+        Без конвертації
+      </label>
+      <label>
+        <input type="radio" name="currency" value="foreign">
+        Сума в іноземній валюті
+      </label>
+    </div>
+    <div class="input-fields">
+      <label for="sum">Сума:</label>
+      <input type="text" id="sum" inputmode="decimal">
+      <div id="foreign-input" class="hidden">
+        <label for="exchange-rate">Обмінний курс:</label>
+        <input type="text" id="exchange-rate" inputmode="decimal">
+      </div>
+    </div>
+    <div class="results" id="results"></div>
+  </div>
+  <div class="theme-switcher">
+    <button id="theme-toggle">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
+        <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/>
+      </svg>
+      <span>Системна тема</span>
+    </button>
+  </div>
+  <div class="disclaimer">
+    <h2>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+        <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+        <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+      </svg>
+      Дисклеймер
+    </h2>
+    <p>Цей податковий калькулятор створено виключно для розрахунків податків у вигаданій країні «Сянос» — місці, де податки обчислює мавка, а бюджет складає лісовий чаклун після консультації з домовиком.</p>
+    <p>Цей калькулятор не є фінансовою чи податковою консультацією. Автор не гарантує правильність, актуальність чи відповідність результатів калькулятора реальним законам будь-якої країни (особливо тієї, в якій ви мешкаєте).</p>
+    <p>Користувач використовує калькулятор на власний страх і ризик. Автор не несе жодної відповідальності за можливі помилки, баги, збої чи невміння користувача правильно вписувати числа у відповідні поля.</p>
+    <p>Якщо ви раптом вирішите спиратися на результати цього калькулятора при подачі звітності — знайте, десь у лісі лісовий чаклун зараз дуже голосно сміється.</p>
+  </div>
+  <div class="links">
+    <a href="https://github.com/aruseni/syanos-tax-calculator">Код калькулятора на GitHub</a>
+  </div>
+  <script>
+    // Get DOM elements
+    const currencyRadios = document.querySelectorAll('input[name="currency"]');
+    const foreignInputDiv = document.getElementById("foreign-input");
+    const resultsDiv = document.getElementById("results");
+
+    const sumInput = document.getElementById("sum");
+    const exchangeRateInput = document.getElementById("exchange-rate");
+
+    // Switch input fields based on currency selection
+    currencyRadios.forEach((radio) => {
+      radio.addEventListener("change", () => {
+        if (radio.value === "local_currency" && radio.checked) {
+          foreignInputDiv.classList.add("hidden");
+          // Clear exchange rate input
+          exchangeRateInput.value = "";
+        } else if (radio.value === "foreign" && radio.checked) {
+          foreignInputDiv.classList.remove("hidden");
+        }
+        calculate(); // recalc on switching
+      });
+    });
+
+    // Listen for changes in input fields to perform calculations
+    sumInput.addEventListener("input", calculate);
+    exchangeRateInput.addEventListener("input", calculate);
+
+    // Helper function to round to two decimals
+    function roundToTwo(n) {
+      const multiplicator = 100;
+      n = parseFloat((n * multiplicator).toFixed(11));
+      return Math.round(n) / multiplicator;
+    }
+
+    // Helper function to validate user input
+    function validateUserInput(input, decimalPlaces) {
+      const inputList = input.split(/[.,]+/);
+      if (inputList.length == 0) {
+        return false;
+      }
+      if (inputList.length > 2) {
+        return false;
+      }
+      const allIsJustDigits = inputList.every((val) => /^\d+$/.test(val));
+      if (!allIsJustDigits) {
+        return false;
+      }
+      if (inputList[0].length > 10) {
+        return false;
+      }
+      if (inputList.length == 2 && inputList[1].length > decimalPlaces) {
+        return false;
+      }
+      return true;
+    }
+
+    function calculateTax(sum) {
+      let html = "";
+      const tax5 = roundToTwo(sum * 0.05).toFixed(2);
+      const tax1 = roundToTwo(sum * 0.01).toFixed(2);
+      html += `<li>${sum} * 0.05 = ${tax5}</li>`;
+      html += `<li>${sum} * 0.01 = ${tax1}</li>`;
+      return html;
+    }
+
+    function getInputValues(selectedCurrency) {
+      const sumInputValue = sumInput.value.trim();
+      if (!validateUserInput(sumInputValue, 2)) {
+        return;
+      }
+      const data = { sum: sumInputValue };
+      if (selectedCurrency === "foreign") {
+        const exchangeRateInputValue = exchangeRateInput.value.trim();
+        if (!validateUserInput(exchangeRateInputValue, 4)) {
+          return;
+        }
+        data.exchangeRate = exchangeRateInputValue;
+      }
+      return data;
+    }
+
+    // Calculate taxes and conversion (if applicable)
+    function calculate() {
+      resultsDiv.innerHTML = "";
+      const selectedCurrency = document.querySelector(
+        'input[name="currency"]:checked',
+      ).value;
+      const data = getInputValues(selectedCurrency);
+      if (!data) {
+        return;
+      }
+      const sum = parseFloat(data.sum).toFixed(2);
+      let html = "<p>Розрахунок:</p><ul>";
+      if (selectedCurrency === "local_currency") {
+        html += calculateTax(sum);
+      } else if (selectedCurrency === "foreign") {
+        const exchangeRate = parseFloat(data.exchangeRate).toFixed(4);
+        const conversion = roundToTwo(sum * exchangeRate).toFixed(2);
+        html += `<li>${sum} * ${exchangeRate} = ${conversion}</li>`;
+        html += calculateTax(roundToTwo(conversion).toFixed(2));
+      }
+      html += "</ul>";
+      resultsDiv.innerHTML = html;
+    }
+
+    // Theme switcher logic
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeToggleSpan = themeToggle.getElementsByTagName("span")[0];
+    const themes = ["system", "dark", "light"];
+    const themeLabels = ["Системна тема", "Темна тема", "Світла тема"];
+    let currentThemeIndex = 0; // starting with "system"
+    themeToggle.addEventListener("click", (e) => {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      const theme = themes[currentThemeIndex];
+      themeToggleSpan.textContent = themeLabels[currentThemeIndex];
+      applyTheme(theme);
+    });
+
+    // Apply theme: if "system", remove the override; otherwise, set data-theme
+    function applyTheme(theme) {
+      if (theme === "system") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", theme);
+      }
+    }
+
+    // Reset all input fields
+    sumInput.value = "";
+    exchangeRateInput.value = "";
+
+    document.querySelector(
+      'input[name="currency"][value="local_currency"]',
+    ).checked = true;
+  </script>
+</body>
+</html>
