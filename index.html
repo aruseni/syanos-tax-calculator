@@ -295,7 +295,7 @@
 
     // Helper function to validate user input
     function validateUserInput(input, decimalPlaces) {
-      const inputList = input.split(/[.,]+/);
+      const inputList = input.split(".");
       if (inputList.length == 0) {
         return false;
       }
@@ -325,13 +325,15 @@
     }
 
     function getInputValues(selectedCurrency) {
-      const sumInputValue = sumInput.value.trim();
+      const sumInputValue = sumInput.value.trim().replace(",", ".");
       if (!validateUserInput(sumInputValue, 2)) {
         return;
       }
       const data = { sum: sumInputValue };
       if (selectedCurrency === "foreign") {
-        const exchangeRateInputValue = exchangeRateInput.value.trim();
+        const exchangeRateInputValue = exchangeRateInput.value
+          .trim()
+          .replace(",", ".");
         if (!validateUserInput(exchangeRateInputValue, 4)) {
           return;
         }
